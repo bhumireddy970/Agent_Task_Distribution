@@ -12,7 +12,7 @@ const TaskList = () => {
 
   useEffect(() => {
     axios
-      .get(Url + "/tasks")
+      .get(Url + "/api/tasks")
       .then((res) => {
         setTasks(res.data);
         setFilteredTasks(res.data);

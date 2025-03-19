@@ -20,7 +20,7 @@ const AgentManagement = () => {
 
   const fetchAgents = async () => {
     try {
-      const response = await axios.get(Url + "/agents");
+      const response = await axios.get(Url + "/api/agents");
       setAgents(response.data);
     } catch (error) {
       console.error("Error fetching agents:", error);
