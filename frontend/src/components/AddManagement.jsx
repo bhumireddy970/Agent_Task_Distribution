@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Url } from "./Url";
-
+const API_BASE_URL = Url + "api/agents";
 const AgentManagement = () => {
   const [agents, setAgents] = useState([]);
   const [newAgent, setNewAgent] = useState({
@@ -20,7 +20,7 @@ const AgentManagement = () => {
 
   const fetchAgents = async () => {
     try {
-      const response = await axios.get(Url + "api/agents");
+      const response = await axios.get(API_BASE_URL);
       setAgents(response.data);
     } catch (error) {
       console.error("Error fetching agents:", error);
@@ -117,7 +117,7 @@ const AgentManagement = () => {
           <div className="overflow-x-auto">
             <table className="w-full border-collapse bg-white bg-opacity-80 rounded-lg shadow-lg">
               <thead>
-                <tr className="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 rounded-lg text-white">
+                <tr className="bg-gradient-to-r from-blue-500 to-purple-600 text-white-200 py-2 rounded-lg text-white">
                   <th className="border p-3">Name</th>
                   <th className="border p-3">Email</th>
                   <th className="border p-3">Mobile</th>
