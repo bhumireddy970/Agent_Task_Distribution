@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { Url } from "./Url";
 
 const UploadCSV = () => {
   const [file, setFile] = useState(null);
@@ -21,7 +22,7 @@ const UploadCSV = () => {
     formData.append("file", file);
 
     try {
-      await axios.post("http://localhost:5000/api/upload", formData, {
+      await axios.post(Url + "/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

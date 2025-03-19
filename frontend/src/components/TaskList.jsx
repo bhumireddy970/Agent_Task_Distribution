@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Url } from "./Url";
 
 const TaskList = () => {
   const [tasks, setTasks] = useState([]);
@@ -11,7 +12,7 @@ const TaskList = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/tasks")
+      .get(Url + "/tasks")
       .then((res) => {
         setTasks(res.data);
         setFilteredTasks(res.data);

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
-const API_BASE_URL = "http://localhost:5000/api/agents";
+import { Url } from "./Url";
 
 const AgentManagement = () => {
   const [agents, setAgents] = useState([]);
@@ -21,7 +20,7 @@ const AgentManagement = () => {
 
   const fetchAgents = async () => {
     try {
-      const response = await axios.get(API_BASE_URL);
+      const response = await axios.get(Url + "/agents");
       setAgents(response.data);
     } catch (error) {
       console.error("Error fetching agents:", error);
