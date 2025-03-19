@@ -2,7 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-
+const path = require("path");
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -16,6 +16,12 @@ app.use("/api/tasks", taskRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/agents", agentRoutes);
 app.use("/api/upload", fileUpload);
+
+app.use(express.static(path.join(__dirname, "build")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "build", "index.html"));
+});
 
 mongoose
   .connect(process.env.MONGO_URL)
