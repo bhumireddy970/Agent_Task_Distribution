@@ -8,23 +8,47 @@ const TaskList = () => {
   const [filteredTasks, setFilteredTasks] = useState([]);
   const [agents, setAgents] = useState([]);
   const [selectedAgent, setSelectedAgent] = useState("All");
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    axios
-      .get(Url + "api/tasks")
-      .then((res) => {
-        setTasks(res.data);
-        setFilteredTasks(res.data);
+  // Ensure adminId is a valid string
+  const adminId = localStorage.getItem("adminId") || "";
 
-        // Extract unique agent names
-        const agentNames = Array.from(
-          new Set(res.data.map((task) => task.assignedTo?.name).filter(Boolean))
-        );
-        setAgents(agentNames);
+  useEffect(() => {
+    if (!adminId) {
+      console.error("No admin ID found.");
+      setLoading(false);
+      return;
+    }
+
+    axios
+      .get(`${Url}api/tasks/admin/${adminId}`)
+      .then((res) => {
+        if (Array.isArray(res.data)) {
+          setTasks(res.data);
+          setFilteredTasks(res.data);
+
+          // Extract unique agent names
+          const agentNames = Array.from(
+            new Set(
+              res.data.map((task) => task.assignedTo?.name).filter(Boolean)
+            )
+          );
+          setAgents(agentNames);
+        } else {
+          setTasks([]);
+          setFilteredTasks([]);
+        }
       })
-      .catch((error) => console.error("Error fetching tasks:", error));
-  }, []);
+      .catch((error) => {
+        console.error("Error fetching tasks:", error);
+        setTasks([]);
+        setFilteredTasks([]);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [adminId]);
 
   // Filter tasks based on the selected agent
   const handleFilterChange = (event) => {
@@ -66,7 +90,7 @@ const TaskList = () => {
         </div>
 
         <h2 className="text-3xl font-bold text-gray-800 text-center mb-6">
-          Distributed Tasks
+          My Assigned Tasks
         </h2>
 
         <div className="overflow-x-auto">
@@ -80,7 +104,13 @@ const TaskList = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredTasks.length > 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan="4" className="p-4 text-center text-gray-600">
+                    Loading tasks...
+                  </td>
+                </tr>
+              ) : filteredTasks.length > 0 ? (
                 filteredTasks.map((task) => (
                   <tr
                     key={task._id}

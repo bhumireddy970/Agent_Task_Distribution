@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Url } from "./Url";
+
 const API_BASE_URL = Url + "api/agents";
+
 const AgentManagement = () => {
   const [agents, setAgents] = useState([]);
   const [newAgent, setNewAgent] = useState({
@@ -13,14 +15,26 @@ const AgentManagement = () => {
   });
 
   const navigate = useNavigate();
+  const adminId = localStorage.getItem("adminId"); // ✅ Fetch Admin ID
 
   useEffect(() => {
-    fetchAgents();
-  }, []);
+    if (adminId) {
+      fetchAgents();
+    } else {
+      console.error("Admin ID not found. Redirecting to login.");
+      navigate("/login");
+    }
+  }, [adminId]);
 
   const fetchAgents = async () => {
+    const adminId = localStorage.getItem("adminId");
+    if (!adminId) {
+      console.error("Admin ID not found in localStorage");
+      return;
+    }
+
     try {
-      const response = await axios.get(API_BASE_URL);
+      const response = await axios.get(`${API_BASE_URL}/${adminId}`);
       setAgents(response.data);
     } catch (error) {
       console.error("Error fetching agents:", error);
@@ -33,12 +47,27 @@ const AgentManagement = () => {
 
   const addAgent = async (e) => {
     e.preventDefault();
+    const adminId = localStorage.getItem("adminId"); // Retrieve admin ID
+    if (!adminId) {
+      console.error("Admin ID not found in localStorage");
+      alert("Admin ID is missing. Please log in again.");
+      return;
+    }
+
     try {
-      const response = await axios.post(API_BASE_URL, newAgent);
+      const response = await axios.post("http://localhost:5000/api/agents", {
+        ...newAgent,
+        adminId,
+      });
+
       setAgents([...agents, response.data]);
       setNewAgent({ name: "", email: "", mobile: "", password: "" });
     } catch (error) {
-      console.error("Error adding agent:", error);
+      console.error(
+        "Error adding agent:",
+        error.response?.data || error.message
+      );
+      alert(`Error: ${error.response?.data?.error || "Internal Server Error"}`);
     }
   };
 
@@ -53,11 +82,11 @@ const AgentManagement = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600 w-full">
-      <div className="bg-gradient-to-r from-blue-500 to-purple-600 bg-opacity-30 backdrop-blur-md p-6 rounded-lg shadow-lg w-full max-w-6xl flex">
-        <div className="w-1/3 p-6 bg-white bg-opacity-80 rounded-lg shadow-lg">
+      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-6xl flex">
+        <div className="w-1/3 p-6 bg-gray-100 rounded-lg shadow-lg">
           <button
             type="button"
-            className="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 rounded-lg w-full mb-4"
+            className="bg-blue-500 text-white py-2 rounded-lg w-full mb-4"
             onClick={() => navigate("/dashboard")}
           >
             Back
@@ -102,7 +131,7 @@ const AgentManagement = () => {
             />
             <button
               type="submit"
-              className="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 rounded-lg w-full"
+              className="bg-blue-500 text-white py-2 rounded-lg w-full"
             >
               Add Agent
             </button>
@@ -111,38 +140,34 @@ const AgentManagement = () => {
 
         {/* List Section */}
         <div className="w-2/3 p-6">
-          <h2 className="text-xl font-bold mb-4 text-center text-white">
-            Agent List
-          </h2>
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse bg-white bg-opacity-80 rounded-lg shadow-lg">
-              <thead>
-                <tr className="bg-gradient-to-r from-blue-500 to-purple-600 text-white-200 py-2 rounded-lg text-white">
-                  <th className="border p-3">Name</th>
-                  <th className="border p-3">Email</th>
-                  <th className="border p-3">Mobile</th>
-                  <th className="border p-3">Actions</th>
+          <h2 className="text-xl font-bold mb-4 text-center">Agent List</h2>
+          <table className="w-full border-collapse bg-white shadow-lg">
+            <thead>
+              <tr className="bg-blue-500 text-white">
+                <th className="border p-3">Name</th>
+                <th className="border p-3">Email</th>
+                <th className="border p-3">Mobile</th>
+                <th className="border p-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {agents.map((agent) => (
+                <tr key={agent._id} className="border">
+                  <td className="p-3 border text-center">{agent.name}</td>
+                  <td className="p-3 border text-center">{agent.email}</td>
+                  <td className="p-3 border text-center">{agent.mobile}</td>
+                  <td className="p-3 border text-center">
+                    <button
+                      onClick={() => removeAgent(agent._id)}
+                      className="bg-red-500 text-white px-3 py-1 rounded"
+                    >
+                      Remove
+                    </button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {agents.map((agent) => (
-                  <tr key={agent._id} className="border">
-                    <td className="p-3 border text-center">{agent.name}</td>
-                    <td className="p-3 border text-center">{agent.email}</td>
-                    <td className="p-3 border text-center">{agent.mobile}</td>
-                    <td className="p-3 border text-center">
-                      <button
-                        onClick={() => removeAgent(agent._id)}
-                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-                      >
-                        Remove
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

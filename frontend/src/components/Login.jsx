@@ -18,10 +18,23 @@ function Login() {
         password,
       });
 
-      localStorage.setItem("token", res.data.token);
-      alert("Login Successfull");
+      const { token, admin } = res.data;
+
+      if (!admin || !admin.id) {
+        // Check if admin and admin.id exist
+        console.error("adminId is missing in response");
+        return;
+      }
+
+      const adminId = admin.id; // Extract adminId correctly
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("adminId", adminId);
+
+      alert("Login Successful");
       navigate("/dashboard");
     } catch (error) {
+      console.error("Login error:", error.response?.data || error.message);
       alert("Invalid credentials");
     }
   };

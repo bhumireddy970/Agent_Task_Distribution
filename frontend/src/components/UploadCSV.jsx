@@ -7,6 +7,7 @@ import { Url } from "./Url";
 const UploadCSV = () => {
   const [file, setFile] = useState(null);
   const navigate = useNavigate();
+  const adminId = localStorage.getItem("adminId") || "";
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -22,7 +23,7 @@ const UploadCSV = () => {
     formData.append("file", file);
 
     try {
-      await axios.post(Url + "api/upload", formData, {
+      await axios.post(`${Url}api/upload?adminId=${adminId}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -30,7 +31,7 @@ const UploadCSV = () => {
       navigate("/taskdistribute");
     } catch (error) {
       console.error("Upload error:", error.response?.data || error.message);
-      toast.error(error.response?.data?.error || "Upload failed");
+      alert(error.response?.data?.error || "Upload failed");
     }
   };
 
