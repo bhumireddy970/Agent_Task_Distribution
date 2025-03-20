@@ -55,7 +55,7 @@ const AgentManagement = () => {
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/api/agents", {
+      const response = await axios.post(API_BASE_URL, {
         ...newAgent,
         adminId,
       });
